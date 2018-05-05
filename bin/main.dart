@@ -1,11 +1,12 @@
 import 'package:fave_reads/fave_reads.dart';
+import 'dart:io' show Platform;
 
 Future main() async {
   var app = new Application<FaveReadsSink>()
-      ..configuration.configurationFilePath = "config.yaml"
-      ..configuration.port = 8000;
+    ..configuration.configurationFilePath = "config.yaml"
+    ..configuration.port = 8000;
 
-  await app.start(numberOfInstances: 2);
+  await app.start(numberOfInstances: Platform.numberOfProcessors);
 
   print("Application started on port: ${app.configuration.port}.");
   print("Use Ctrl-C (SIGINT) to stop running the application.");
