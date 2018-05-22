@@ -1,62 +1,53 @@
 import '../fave_reads.dart';
 import '../model/book.dart';
 
-// Note: State is kept in a single isolate, meaning
-// that updates are not accessible in another isolate.
-// This is by design since servers are meant to be stateless.
-List books = [
-  new Book(
-      title: 'Head First Design Patterns', author: 'Eric Freeman', year: 2004),
-  new Book(
-      title: 'Clean Code: A handbook of Agile Software Craftsmanship',
-      author: 'Robert C. Martin',
-      year: 2008),
-  new Book(
-      title: 'Code Complete: A Practical Handbook of Software Construction',
-      author: 'Steve McConnell',
-      year: 2004),
-];
-
 class BooksController extends HTTPController {
   @httpGet
   Future<Response> getAllBooks() async {
-    return new Response.ok(books);
+    var query = new Query<Book>();
+    return new Response.ok(await query.fetch());
   }
 
   @httpGet
   Future<Response> getBook(@HTTPPath("index") int idx) async {
-    if (idx < 0 || idx > books.length - 1) {
-      return new Response.notFound(body: 'Book does not exist');
+    var query = new Query<Book>()..where.id = whereEqualTo(idx);
+    var book = await query.fetchOne();
+
+    if (book == null) {
+      return new Response.notFound(body: 'Book does not exist')
+        ..contentType = ContentType.TEXT;
     }
-    return new Response.ok(books[idx]);
+    return new Response.ok(book);
   }
 
   @httpPost
   Future<Response> addBook(@HTTPBody() Book book) async {
-    books.add(book);
-    return new Response.ok(book);
+    var query = new Query<Book>()..values = book;
+    return new Response.ok(await query.insert());
   }
 
   @httpPut
   Future<Response> updateBook(
       @HTTPPath("index") int idx, @HTTPBody() Book book) async {
-    if (idx < 0 || idx > books.length - 1 || book == null) {
+    var query = new Query<Book>()
+      ..values = book
+      ..where.id = whereEqualTo(idx);
+    var updatedBook = await query.updateOne();
+
+    if (updatedBook == null) {
       return new Response.notFound(body: 'Book does not exist');
     }
-    for (var i = 0; i < books.length; i++) {
-      if (i == idx) {
-        books[i] = book;
-      }
-    }
-    return new Response.ok(book);
+    return new Response.ok(updatedBook);
   }
 
   @httpDelete
   Future<Response> deleteBook(@HTTPPath("index") int idx) async {
-    if (idx < 0 || idx > books.length - 1) {
+    var query = new Query<Book>()..where.id = whereEqualTo(idx);
+    var deletedBookId = await query.delete();
+
+    if (deletedBookId == 0) {
       return new Response.notFound(body: 'Book does not exist');
     }
-    books.removeAt(idx);
-    return new Response.ok('Book successfully deleted.');
+    return new Response.ok('Successfully deleted book.');
   }
 }

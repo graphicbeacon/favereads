@@ -1,23 +1,12 @@
 import '../fave_reads.dart';
 
-class Book extends HTTPSerializable {
+class Book extends ManagedObject<_Book> implements _Book {}
+
+class _Book {
+  @managedPrimaryKey
+  int id;
+
   String title;
   String author;
   int year;
-
-  Book({this.title, this.author, this.year});
-
-  @override
-  Map<String, dynamic> asMap() => {
-        "title": title,
-        "author": author,
-        "year": year,
-      };
-
-  @override
-  void readFromMap(Map body) {
-    title = body["title"];
-    author = body["author"];
-    year = body["year"];
-  }
 }
