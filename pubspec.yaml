@@ -1,7 +1,7 @@
 name: fave_reads
-description: A web server application.
-version: 0.0.1
-author: stable|kernel <jobs@stablekernel.com>
+description: A personal reading list application.
+version: 0.5.0
+author: Jermaine Oppong
 
 environment:
   sdk: '>=1.20.0 <2.0.0'

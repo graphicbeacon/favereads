@@ -1,4 +1,5 @@
 import 'package:fave_reads/fave_reads.dart';
+import 'package:fave_reads/utils/utils.dart';
 import 'package:aqueduct/test.dart';
 
 export 'package:fave_reads/fave_reads.dart';
@@ -30,6 +31,8 @@ class TestApplication {
 
     await application.start(runOnMainIsolate: true);
 
+    await createDatabaseSchema(ManagedContext.defaultContext, true);
+
     client = new TestClient(application);
   }
 
@@ -39,5 +42,10 @@ class TestApplication {
   /// resources.
   Future stop() async {
     await application?.stop();
+  }
+
+  Future discardPersistentData() async {
+    await ManagedContext.defaultContext.persistentStore.close();
+    await createDatabaseSchema(ManagedContext.defaultContext, true);
   }
 }

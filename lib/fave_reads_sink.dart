@@ -6,9 +6,16 @@ class FaveReadsSink extends RequestSink {
     logger.onRecord.listen(
         (rec) => print("$rec ${rec.error ?? ""} ${rec.stackTrace ?? ""}"));
 
+    var configFilePath = appConfig.configurationFilePath;
+    var config = new FaveReadsConfiguration(configFilePath);
+
     var managedDataModel = new ManagedDataModel.fromCurrentMirrorSystem();
     var persistentStore = new PostgreSQLPersistentStore.fromConnectionInfo(
-        "dartuser", "dbpass123", "localhost", 5432, "fave_reads");
+        config.database.username,
+        config.database.password,
+        config.database.host,
+        config.database.port,
+        config.database.databaseName);
 
     ManagedContext.defaultContext =
         new ManagedContext(managedDataModel, persistentStore);
@@ -23,21 +30,10 @@ class FaveReadsSink extends RequestSink {
 
     router.route('/books[/:index]').generate(() => new BooksController());
   }
+}
 
-  @override
-  Future willOpen() async {
-    try {
-      await createDatabaseSchema(ManagedContext.defaultContext);
-    } catch (e) {}
-  }
+class FaveReadsConfiguration extends ConfigurationItem {
+  FaveReadsConfiguration(String fileName) : super.fromFile(fileName);
 
-  Future createDatabaseSchema(ManagedContext context) async {
-    var builder = new SchemaBuilder.toSchema(
-        context.persistentStore, new Schema.fromDataModel(context.dataModel),
-        isTemporary: false);
-
-    for (var cmd in builder.commands) {
-      await context.persistentStore.execute(cmd);
-    }
-  }
+  DatabaseConnectionConfiguration database;
 }
