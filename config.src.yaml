@@ -3,4 +3,5 @@ database:
   password: dbpass123
   host: localhost
   port: 5432
-  databaseName: dart_test
+  databaseName: fave_reads_test
+  isTemporary: true

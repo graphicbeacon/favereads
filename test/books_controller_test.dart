@@ -3,7 +3,6 @@ import 'package:fave_reads/model/book.dart';
 
 Future main() async {
   TestApplication app = new TestApplication();
-  var request;
 
   setUpAll(() async {
     await app.start();
@@ -14,8 +13,6 @@ Future main() async {
   });
 
   setUp(() async {
-    request = app.client.request("/books");
-
     // Populate DB
     var books = [
       new Book()
@@ -44,15 +41,21 @@ Future main() async {
 
   group("books controller", () {
     test("GET /books returns list of books", () async {
+      // Arrange
+      var request = app.client.request("/books");
+
+      // Act
       var response = await request.get();
+
+      // Assert
       expectResponse(response, 200,
           body: everyElement(partial(
               {"title": isString, "author": isString, "year": isInteger})));
     });
 
     test("GET /books/:index returns a single book", () async {
-      var response = await app.client.request("/books/1").get();
-      expectResponse(response, 200,
+      var request = app.client.request("/books/1");
+      expectResponse(await request.get(), 200,
           body: partial({
             "title": "Head First Design Patterns",
             "author": "Eric Freeman",
@@ -61,7 +64,7 @@ Future main() async {
     });
 
     test("POST /books creates a new book", () async {
-      request
+      var request = app.client.request("/books")
         ..json = {
           "title": "JavaScript: The Good Parts",
           "author": "Douglas Crockford",
@@ -75,7 +78,7 @@ Future main() async {
     });
 
     test("PUT /books/:index updates a book", () async {
-      request = app.client.request("/books/1")
+      var request = app.client.request("/books/1")
         ..json = {
           "title": "JavaScript: The Good Parts",
           "author": "Douglas Crockford",
@@ -86,7 +89,7 @@ Future main() async {
     });
 
     test("DELETE /books/:index deletes a book", () async {
-      request = app.client.request("/books/1");
+      var request = app.client.request("/books/1");
       expectResponse(await request.delete(), 200,
           body: "Successfully deleted book.");
       expectResponse(await request.get(), 404);
