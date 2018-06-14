@@ -1,4 +1,5 @@
 import '../fave_reads.dart';
+import './author.dart';
 
 class Book extends ManagedObject<_Book> implements _Book {}
 
@@ -7,6 +8,7 @@ class _Book {
   int id;
 
   String title;
-  String author;
   int year;
+
+  ManagedSet<Author> authors;
 }
