@@ -75,7 +75,7 @@ Future main() async {
       expectResponse(await request.get(), 200, body: {
         "id": 1,
         "title": "Head First Design Patterns",
-        "authors": allOf(everyElement(partial({"name": isString}))),
+        "authors": allOf(everyElement({"id": isInteger, "name": isString})),
         "year": 2004,
       });
     });
@@ -94,7 +94,7 @@ Future main() async {
         "title": "JavaScript: The Good Parts",
         "year": 2008,
         "authors": [
-          partial({"name": "Douglas Crockford"}),
+          {"id": isInteger, "name": "Douglas Crockford"},
         ]
       });
     });
@@ -113,7 +113,7 @@ Future main() async {
         "title": "JavaScript: The Good Parts",
         "year": 2008,
         "authors": [
-          partial({"name": "Douglas Crockford"})
+          {"id": isInteger, "name": "Douglas Crockford"}
         ]
       });
     });

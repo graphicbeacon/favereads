@@ -11,9 +11,11 @@ class BooksController extends HTTPController {
 
   @httpGet
   Future<Response> getBook(@HTTPPath("index") int idx) async {
-    var query = new Query<Book>()
-      ..where.id = whereEqualTo(idx)
-      ..join(set: (book) => book.authors);
+    var query = new Query<Book>()..where.id = whereEqualTo(idx);
+
+    query.join(set: (book) => book.authors)
+      ..returningProperties((Author author) => [author.name]);
+
     var book = await query.fetchOne();
 
     if (book == null) {
@@ -38,8 +40,10 @@ class BooksController extends HTTPController {
     });
 
     var insertedBookQuery = new Query<Book>()
-      ..where.id = whereEqualTo(insertedBook.id)
-      ..join(set: (book) => book.authors);
+      ..where.id = whereEqualTo(insertedBook.id);
+
+    insertedBookQuery.join(set: (book) => book.authors)
+      ..returningProperties((Author author) => [author.name]);
 
     return new Response.ok(await insertedBookQuery.fetchOne());
   }
@@ -74,8 +78,10 @@ class BooksController extends HTTPController {
 
     // Build and execute query for updated book
     var updatedBookQuery = new Query<Book>()
-      ..where.id = whereEqualTo(updatedBook.id)
-      ..join(set: (book) => book.authors);
+      ..where.id = whereEqualTo(updatedBook.id);
+
+    updatedBookQuery.join(set: (book) => book.authors)
+      ..returningProperties((Author author) => [author.name]);
 
     return new Response.ok(await updatedBookQuery.fetchOne());
   }
